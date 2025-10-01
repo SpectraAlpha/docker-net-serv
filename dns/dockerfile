@@ -1,0 +1,21 @@
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y bind9 dnsutils && rm -rf /var/lib/apt/lists/*
+
+# Copy config files
+COPY named.conf /etc/bind/named.conf
+COPY db.csne.vcct.com /etc/bind/db.csne.vcct.com
+
+EXPOSE 53/udp 53/tcp
+CMD ["/usr/sbin/named", "-f", "-g"]
+
+# Run in foreground and log to stderr
+# -f: Run in foreground
+# -g: Log to stderr (not syslog)    
+# -c: Specify config file (default is /etc/bind/named.conf)
+# -u: Run as user (default is 'bind')
+# -4: IPv4 only
+# -6: IPv6 only
+# -d: Debug level (0-99)
+# -p: Print version and exit
+# -t: Chroot to directory
+# -x: Disable DNSSEC validation
