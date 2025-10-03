@@ -1,0 +1,15 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y squid && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY squid.conf /etc/squid/squid.conf
+
+# Use an entrypoint to initialize cache directories at container start
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 3128
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
