@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  dns:
+    build:
+      context: ./dns
+      dockerfile: dockerfile
+    network_mode: host
+
+  dhcp:
+    build:
+      context: ./dhcp
+      dockerfile: dockerfile
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+
+  squid:
+    build:
+      context: ./squid
+      dockerfile: dockerfile
+    ports:
+      - "3128:3128"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512m
