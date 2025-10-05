@@ -1,0 +1,15 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y isc-dhcp-client iproute2 iputils-ping && rm -rf /var/lib/apt/lists/*
+
+# Create script to request an IP and display it
+RUN echo '#!/bin/bash\n\
+ip addr flush dev eth0\n\
+echo "Requesting IP via DHCP..."\n\
+dhclient -v eth0\n\
+echo "Assigned IP:"\n\
+ip addr show eth0\n\
+ping -c 2 192.168.8.132 || true\n\
+echo "DHCP test complete."\n' > /test-dhcp.sh && chmod +x /test-dhcp.sh
+
+CMD ["/test-dhcp.sh"]
