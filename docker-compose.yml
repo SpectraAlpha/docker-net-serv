@@ -1,23 +1,27 @@
 version: '3.8'
+
 services:
   dns:
     build:
       context: ./dns
-      dockerfile: dockerfile
+      dockerfile: Dockerfile.dns
+    image: tniromin2/dns-server-test:latest
     network_mode: host
 
   dhcp:
     build:
       context: ./dhcp
-      dockerfile: dockerfile
-    network_mode: host
+      dockerfile: Dockerfile.dhcp
+    image: tniromin2/dhcp-server-test:latest
+    network_mode: dhcp-net
     cap_add:
       - NET_ADMIN
 
   squid:
     build:
       context: ./squid
-      dockerfile: dockerfile
+      dockerfile: Dockerfile.squid
+    image: tniromin2/squid-proxy-test:latest
     ports:
       - "3128:3128"
     deploy:
@@ -25,3 +29,24 @@ services:
         limits:
           cpus: "1"
           memory: 512m
+
+  dhcp-client:
+    build:
+      context: ./dhcp-client
+      dockerfile: Dockerfile.client
+    image: tniromin2/dhcp-client-test:latest
+    network_mode: dhcp-net
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - dhcp  
+
+networks:
+  dhcp-net:
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+    ipam: 
+      config:
+        - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
