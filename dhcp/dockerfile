@@ -1,5 +1,11 @@
 FROM ubuntu:22.04
-RUN apt-get update && apt-get install -y isc-dhcp-server && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+	&& apt-get install -y isc-dhcp-server \
+	&& rm -rf /var/lib/apt/lists/* \
+	# Ensure runtime and leases directories/files exist so dhcpd can start cleanly
+	&& mkdir -p /var/lib/dhcp /var/run/dhcp \
+	&& touch /var/lib/dhcp/dhcpd.leases /var/lib/dhcp/dhcpd.leases~ \
+	&& chmod 644 /var/lib/dhcp/dhcpd.leases /var/lib/dhcp/dhcpd.leases~
 
 COPY dhcpd.conf /etc/dhcp/dhcpd.conf
 
