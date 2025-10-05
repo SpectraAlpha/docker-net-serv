@@ -1,12 +1,16 @@
-.PHONY: run stop remove restart logs exec #non-file targets
+.PHONY: run stop remove restart logs exec network#non-file targets
 
 build:
 	docker build -t mydhcp .
+
+network:
+	sudo docker network create -d macvlan \
+  	--subnet=192.168.8.0/24 \
+ 	--gateway=192.168.8.1 \
+  	-o parent=eth0 dhcp-net
+
 run:
-	sudo docker run -d --name dhcp-server \
-	  --network host \
-	  --cap-add NET_ADMIN \	
-	  mydhcp
+	docker run -d --name dhcp-server --network dhcp-net --cap-add NET_ADMIN mydhcp
 stop:
 	sudo docker stop dhcp-server
 remove:
