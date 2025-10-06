@@ -17,10 +17,14 @@ chown -R "$SQUID_USER":"$SQUID_USER" /var/spool/squid /var/log/squid /var/run/sq
 # Initialize cache directories on first run
 if [ ! -d /var/spool/squid/00 ]; then
   echo "Initializing Squid cache directories..."
-  # Run in foreground mode during init to avoid daemonizing
-  squid -N -z -f /etc/squid/squid.conf || true
-  # Ensure ownership after initialization
-  chown -R "$SQUID_USER":"$SQUID_USER" /var/spool/squid || true
+  # Only initialize if a disk cache_dir is configured; skip for 'null'
+  if ! grep -qE '^\s*cache_dir\s+null\b' /etc/squid/squid.conf; then
+    squid -N -z -f /etc/squid/squid.conf || true
+    # Ensure ownership after initialization
+    chown -R "$SQUID_USER":"$SQUID_USER" /var/spool/squid || true
+  else
+    echo "cache_dir is null; skipping on-disk cache initialization"
+  fi
 fi
 
 # Remove any stale PID file created during initialization
